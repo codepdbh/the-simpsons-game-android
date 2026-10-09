@@ -15,3 +15,8 @@ Its SDK dependency sources are fetched at the pinned ReXGlue 0.10 revision by
 tools/fetch_thirdparty.py. These include FFmpeg, imgui, Vulkan tooling and SIMD
 support; their upstream notices and licenses remain in the source checkout.
 No Xbox executable, game assets or additional GPU driver binaries are included.
+
+The Android driver ZIP importer and its host tests are adapted from
+codepdbh/nfsmw-android (GPL-3.0). Their original source is available in
+app/src/main/java/com/nfsmw/android and tools/tests of that project. The launcher
+layout follows the same project, with Simpsons-specific options and artwork.

@@ -37,6 +37,7 @@ protected:
 };
 int main(int argc, char** argv) {
     try {
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     rex::cvar::Init(argc, argv);
     rex::cvar::ApplyEnvironment();
     rex::InitLoggingEarly();

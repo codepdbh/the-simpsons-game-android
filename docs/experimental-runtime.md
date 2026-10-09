@@ -32,6 +32,7 @@ no demuestra por sí solo compatibilidad con el código recompilado.
 Arranque y título comprobados en SM-S938B; introducción y salida de datos de
 audio observadas. Menú completo, calidad de audio y gameplay requieren pruebas
 adicionales. Overlay táctil y editor implementados; ver [controles](touch-controls.md).
+Perfiles de GPU, drivers y optimizaciones: [gráficos y rendimiento](graphics-and-performance.md).
 
 ## Evidencia inicial — 2026-10-09
 

@@ -7,5 +7,6 @@
         </activity>
         <activity android:name=".MainActivity" android:exported="false" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|navigation|density" />
         <activity android:name=".GameActivity" android:exported="false" android:process=":game" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|navigation|density" />
+        <activity android:name=".GpuProbeActivity" android:exported="false" android:process=":probe" android:screenOrientation="landscape" />
     </application>
 </manifest>

@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.system.Os;
 import android.system.ErrnoException;
 import java.io.File;
-public class GameActivity extends SDLActivity {
+public class GameActivity extends LandscapeSDLActivity {
     private TouchControlsView controls;
     private android.widget.LinearLayout editor;
     private android.widget.TextView editorLabel;
@@ -53,6 +53,7 @@ public class GameActivity extends SDLActivity {
     @Override protected String[] getLibraries() { return new String[] { "SDL3", "tsg_game" }; }
     @Override protected String[] getArguments() {
         int language=getSharedPreferences("tsg_settings",MODE_PRIVATE).getInt("language",5);
-        return new String[] { "--user_language="+language, "--game_data_root=" + new File(getFilesDir(), "game"), "--user_data_root=" + new File(getFilesDir(), "user"), "--cache_root=" + new File(getFilesDir(), "cache"), "--frame_rate=30", "--menu_frame_rate=30", "--gpu=vulkan", "--gpu_plugin=xenos", "--vulkan_dynamic_rendering=false", "--vulkan_native_shader_features=false" };
+        java.util.List<String> args=new java.util.ArrayList<>(java.util.Arrays.asList("--user_language="+language,"--game_data_root="+new File(getFilesDir(),"game"),"--user_data_root="+new File(getFilesDir(),"user"),"--cache_root="+new File(getFilesDir(),"cache"),"--gpu=vulkan","--gpu_plugin=xenos"));
+        GameOptions.arguments(this,args);return args.toArray(new String[0]);
     }
 }
