@@ -30,6 +30,20 @@ public class LauncherActivity extends Activity {
         LinearLayout layout = new LinearLayout(this); layout.setOrientation(LinearLayout.VERTICAL);
         int pad = (int)(20 * getResources().getDisplayMetrics().density); layout.setPadding(pad,pad,pad,pad);
         TextView title = new TextView(this); title.setText("The Simpsons Game Android"); title.setTextSize(24); layout.addView(title);
+        TextView languageLabel = new TextView(this); languageLabel.setText("Idioma del juego (requiere los datos de ese idioma)"); layout.addView(languageLabel);
+        Spinner language = new Spinner(this);
+        String[] languages = { "Español", "Italiano", "English", "Français", "Deutsch" };
+        int[] ids = {5,6,1,4,3};
+        language.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, languages));
+        int savedLanguage = getSharedPreferences("tsg_settings",MODE_PRIVATE).getInt("language",5);
+        for (int i=0;i<ids.length;i++) if(ids[i]==savedLanguage) language.setSelection(i);
+        language.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                getSharedPreferences("tsg_settings",MODE_PRIVATE).edit().putInt("language",ids[position]).apply();
+            }
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+        layout.addView(language);
         status = new TextView(this); status.setTextSize(16); layout.addView(status);
         select = button(layout, "Select TSG folder", () -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -42,7 +56,7 @@ public class LauncherActivity extends Activity {
         start = button(layout, "Start Game", this::startGame);
         button(layout, "Vulkan 1.1 test (blue screen)", () -> startActivity(new Intent(this, MainActivity.class)));
         TextView controls = new TextView(this);
-        controls.setText("Controls: physical gamepad via SDL. Touch overlay is not implemented yet."); layout.addView(controls);
+        controls.setText("Mando virtual: movimiento, cámara, A/B/X/Y, gatillos y START. También admite mando físico."); layout.addView(controls);
         ScrollView scroll = new ScrollView(this); scroll.addView(layout); setContentView(scroll);
         String saved = getPreferences(MODE_PRIVATE).getString("tree", null);
         if (saved != null) tree = Uri.parse(saved);

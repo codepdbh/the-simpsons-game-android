@@ -4,12 +4,12 @@
 |---|---|---|
 | 0 Auditoría | PARTIAL | Tres repositorios inspeccionados y matriz de archivos; requiere auditoría adicional por subsistema antes de portar runtime. |
 | 1 Hello Android | WORKING | APK ARM64 instalado en SM-S938B, SDL3, Vulkan baseline 1.1, pantalla azul y HOME/resume con recreación de contexto, Khronos validation activa sin errores observados. |
-| 2 ReXGlue Android | PARTIAL | SDK Android integrado y enlazado en APK experimental; pruebas de runtime pendientes. |
-| 3 Código recompilado | PARTIAL | Fuentes generadas compiladas y enlazadas para ARM64; ejecución aún no verificada. |
-| 4 Boot | NOT STARTED | Sin runtime del juego. |
-| 5 Primer frame del juego | NOT STARTED | Pantalla azul M1 no es frame del juego. |
+| 2 ReXGlue Android | PARTIAL | Runtime, memoria invitada, XEX, renderer Xenos e input inicializados en SM-S938B. Falta validar otros dispositivos y ciclo de vida del juego. |
+| 3 Código recompilado | WORKING | Funciones ARM64 compiladas, enlazadas y ejecutadas hasta título e introducción. |
+| 4 Boot | WORKING | Arranque hasta título comprobado; versión local del XEX. |
+| 5 Primer frame del juego | WORKING | Captura real de pantalla de título y vídeo introductorio inspeccionadas. |
 | 6 EA logo | NOT STARTED | Sin juego. |
-| 7 Menú | NOT STARTED | Sin juego. |
+| 7 Menú | PARTIAL | Pantalla de título y transición a introducción observadas; falta probar todas las opciones del menú. |
 | 8 Gameplay | NOT STARTED | Sin juego. |
 | 9 Rendimiento juego 30 FPS | NOT STARTED | M1 usa target 30 FPS; no benchmark gameplay. |
 
@@ -38,7 +38,10 @@ por ventanas múltiples. Orientation bloqueada landscape. Surface recreation
 comprobada con HOME/resume; OUT_OF_DATE/SUBOPTIMAL/SURFACE_LOST implementados,
 no forzados artificialmente. La ruta de rechazo Vulkan <1.1 no se probó en hardware.
 Selector SAF e importación con SHA implementados en el launcher experimental;
-selección y permiso persistente comprobados en SM-S938B; importación en curso. El runtime usa una copia privada,
+selección, permiso persistente e importación comprobados en SM-S938B. El runtime usa una copia privada,
 sin VFS SAF directo. FFmpeg/audio del juego, crash reporting guest,
-shader/pipeline cache, controles del juego y drivers adicionales siguen sin
-verificación funcional. Ver [integración experimental](experimental-runtime.md).
+shader/pipeline cache y drivers adicionales siguen sin verificación completa.
+El mando táctil está conectado al input real; overlay y editor comprobados
+visualmente. Falta validar combinaciones multitáctiles, mando físico y gameplay.
+Español comprobado tras seleccionar idioma. Ver [integración experimental](experimental-runtime.md)
+y [controles](touch-controls.md).

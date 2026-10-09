@@ -8,7 +8,7 @@ target_include_directories(tsg_recompiled PRIVATE "${TSG_GAME_ROOT}/generated/de
 target_link_libraries(tsg_recompiled PRIVATE rex::runtime)
 target_compile_options(tsg_recompiled PRIVATE -g0 -O2 -fno-strict-aliasing -ffp-contract=off -fno-char8_t)
 target_precompile_headers(tsg_recompiled PRIVATE "${TSG_GAME_ROOT}/generated/default/simpsons_init.h")
-add_library(tsg_game SHARED src/game/android_game.cpp src/game/android_ring_wait.cpp $<TARGET_OBJECTS:tsg_recompiled>)
+add_library(tsg_game SHARED src/game/android_game.cpp src/game/android_ring_wait.cpp src/game/android_touch.cpp $<TARGET_OBJECTS:tsg_recompiled>)
 target_sources(tsg_game PRIVATE extern/android-reference/sdk/src/ui/rex_app.cpp)
 foreach(source crt_native eye_shading frame_pacing game_clock ink_outlines physics_step subtitles tick_count)
     target_sources(tsg_game PRIVATE "${TSG_GAME_ROOT}/src/${source}.cpp")

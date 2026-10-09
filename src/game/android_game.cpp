@@ -36,6 +36,7 @@ protected:
     }
 };
 int main(int argc, char** argv) {
+    try {
     rex::cvar::Init(argc, argv);
     rex::cvar::ApplyEnvironment();
     rex::InitLoggingEarly();
@@ -47,4 +48,8 @@ int main(int argc, char** argv) {
     const int result = initialized ? context.RunMainMessageLoop() : 1;
     app.InvokeOnDestroy();
     return result;
+    } catch (const std::exception& error) {
+        __android_log_print(ANDROID_LOG_ERROR, "TSGAndroid", "[REX] Initialization failed: %s", error.what());
+        return 1;
+    }
 }

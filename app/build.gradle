@@ -15,7 +15,7 @@ android {
         externalNativeBuild { cmake {
             arguments '-DANDROID_STL=c++_shared', "-DTSG_BUILD_GAME=${project.hasProperty('withGame') ? 'ON' : 'OFF'}"
             targets 'main', 'SDL3-shared'
-            if (project.hasProperty('withGame')) targets 'tsg_game', 'rexgpu-xenos'
+            if (project.hasProperty('withGame')) targets 'tsg_game', 'rexgpu-xenos', 'rexruntime', 'rex_android_gpu_driver'
         } }
     }
     buildFeatures { buildConfig true }
