@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'org.tsg.android'
+    compileSdk 35
+    ndkVersion '28.2.13676358'
+    defaultConfig {
+        applicationId 'org.tsg.android'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0-milestone1'
+        ndk { abiFilters 'arm64-v8a' }
+        externalNativeBuild { cmake { arguments '-DANDROID_STL=c++_shared'; targets 'main', 'SDL3-shared' } }
+    }
+    sourceSets.main.java.srcDirs += ['../extern/SDL/android-project/app/src/main/java']
+    externalNativeBuild { cmake { path '../CMakeLists.txt'; version '3.30.5' } }
+    buildTypes {
+        debug { debuggable true; jniDebuggable true }
+        release { minifyEnabled false }
+    }
+}

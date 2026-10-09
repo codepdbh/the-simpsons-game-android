@@ -1,0 +1,8 @@
+.gradle/
+.cxx/
+**/build/
+local.properties
+extern/SDL/
+artifacts/
+app/src/debug/jniLibs/
+build-*.log
