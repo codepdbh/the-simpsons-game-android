@@ -4,8 +4,8 @@
 |---|---|---|
 | 0 Auditoría | PARTIAL | Tres repositorios inspeccionados y matriz de archivos; requiere auditoría adicional por subsistema antes de portar runtime. |
 | 1 Hello Android | WORKING | APK ARM64 instalado en SM-S938B, SDL3, Vulkan baseline 1.1, pantalla azul y HOME/resume con recreación de contexto, Khronos validation activa sin errores observados. |
-| 2 ReXGlue Android | NOT STARTED | Pendientes plataforma/NDK/memoria registrados. |
-| 3 Código recompilado | NOT STARTED | No enlazado ni ejecutado. |
+| 2 ReXGlue Android | PARTIAL | SDK Android integrado y enlazado en APK experimental; pruebas de runtime pendientes. |
+| 3 Código recompilado | PARTIAL | Fuentes generadas compiladas y enlazadas para ARM64; ejecución aún no verificada. |
 | 4 Boot | NOT STARTED | Sin runtime del juego. |
 | 5 Primer frame del juego | NOT STARTED | Pantalla azul M1 no es frame del juego. |
 | 6 EA logo | NOT STARTED | Sin juego. |
@@ -37,5 +37,8 @@ No probado con host pages 16 KiB, pérdida de dispositivo ni cambios de resoluci
 por ventanas múltiples. Orientation bloqueada landscape. Surface recreation
 comprobada con HOME/resume; OUT_OF_DATE/SUBOPTIMAL/SURFACE_LOST implementados,
 no forzados artificialmente. La ruta de rechazo Vulkan <1.1 no se probó en hardware.
-SAF/SHA, FFmpeg/audio del juego, crash reporting guest, shader/pipeline cache,
-controles del juego y drivers adicionales están fuera de M1.
+Selector SAF e importación con SHA implementados en el launcher experimental;
+selección y permiso persistente comprobados en SM-S938B; importación en curso. El runtime usa una copia privada,
+sin VFS SAF directo. FFmpeg/audio del juego, crash reporting guest,
+shader/pipeline cache, controles del juego y drivers adicionales siguen sin
+verificación funcional. Ver [integración experimental](experimental-runtime.md).

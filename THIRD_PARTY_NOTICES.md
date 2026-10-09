@@ -7,5 +7,11 @@
   vulkan-sdk-1.4.363.0; Apache-2.0, upstream release archive/source licenses.
 - Android Vulkan loader supplied by the device, not distributed here.
 
-The PC and Switch checkouts are references only. Their code and generated game
-TUs are not linked or packaged in this milestone. FFmpeg/ReXGlue are not packaged.
+The default diagnostic build does not package ReXGlue or FFmpeg. The optional
+experimental game build uses TheSimpsonsGameRecomp (GPL-3.0, license in
+extern/TheSimpsonsGameRecomp/LICENSE) and the Android ReXGlue SDK fork from
+extern/android-reference (see its LICENSE and THIRD_PARTY_NOTICES.md).
+Its SDK dependency sources are fetched at the pinned ReXGlue 0.10 revision by
+tools/fetch_thirdparty.py. These include FFmpeg, imgui, Vulkan tooling and SIMD
+support; their upstream notices and licenses remain in the source checkout.
+No Xbox executable, game assets or additional GPU driver binaries are included.

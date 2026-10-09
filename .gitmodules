@@ -1,0 +1,6 @@
+[submodule "extern/TheSimpsonsGameRecomp"]
+	path = extern/TheSimpsonsGameRecomp
+	url = https://github.com/YesterMester/TheSimpsonsGameRecomp.git
+[submodule "extern/android-reference"]
+	path = extern/android-reference
+	url = https://github.com/codepdbh/nfsmw-android.git

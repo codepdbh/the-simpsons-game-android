@@ -1,4 +1,4 @@
-param([ValidateSet('Debug','Release')][string]$Configuration = 'Debug')
+param([ValidateSet('Debug','Release')][string]$Configuration = 'Debug', [switch]$WithGame)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $sdkRoot = $env:ANDROID_HOME
@@ -14,6 +14,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'extern\SDL\CMakeLists.
 Push-Location $projectRoot
 try {
     $ErrorActionPreference = 'Continue' # Windows PowerShell treats native stderr as errors.
-    & .\gradlew.bat "assemble$Configuration"
+    if ($WithGame) { & .\gradlew.bat "assemble$Configuration" '-PwithGame' }
+    else { & .\gradlew.bat "assemble$Configuration" }
     if ($LASTEXITCODE -ne 0) { throw 'Android build failed' }
 } finally { Pop-Location }

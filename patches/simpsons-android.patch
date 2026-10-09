@@ -1,0 +1,31 @@
+diff --git a/simpsons/src/frame_pacing.cpp b/simpsons/src/frame_pacing.cpp
+index f4222377..3ecf72d9 100644
+--- a/simpsons/src/frame_pacing.cpp
++++ b/simpsons/src/frame_pacing.cpp
+@@ -74,7 +74,7 @@ REXCVAR_DEFINE_BOOL(present_late_frames_immediately, true, "GPU",
+                     "without tearing either way");
+ 
+ // freecam.cpp: whether the photo mode has paused the level.
+-bool FreecamWorldFrozen();
++// Android currently has no desktop free-camera overlay or world-freeze mode.
+ 
+ // Steps the Havok world by f1 seconds of frame time. Runs every frame while a
+ // level is live and never in the front end.
+@@ -200,7 +200,7 @@ namespace {
+ 
+ // Whether menu logic runs on its own cadence: menu rates above 30 fps.
+ bool MenuLogicCadence() {
+-  if (!g_in_menu || FreecamWorldFrozen()) {
++  if (!g_in_menu) {
+     return false;
+   }
+   const int32_t rate = ActiveFrameRate();
+@@ -308,7 +308,7 @@ REX_FUNC(sub_82718710) {
+     int64_t last_step = g_last_level_step_ns.load(std::memory_order_relaxed);
+     // The photo mode pauses the level, which stops the physics step too; it is
+     // still a level and keeps the gameplay frame rate.
+-    g_in_menu = (!last_step || NowNs() - last_step > kMenuAfterNs) && !FreecamWorldFrozen();
++    g_in_menu = (!last_step || NowNs() - last_step > kMenuAfterNs);
+     uint32_t refresh_bits = LoadGuestU32(base, kSchedulerRefreshHz);
+     float refresh_hz;
+     std::memcpy(&refresh_hz, &refresh_bits, sizeof(refresh_hz));

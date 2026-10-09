@@ -1,7 +1,8 @@
-# The Simpsons Game Android — Milestone 1
+# The Simpsons Game Android
 
 Prototipo Android ARM64 SDL3 + Vulkan 1.1 que presenta una pantalla azul.
-Todavía no ejecuta ReXGlue ni el juego. No contiene XEX, vídeos ni assets EA.
+El build diagnóstico conserva M1; se está integrando un runtime experimental
+en el build opcional `-PwithGame`. No contiene XEX, vídeos ni assets EA.
 La auditoría e integración pendiente están en [docs/android-port-analysis.md](docs/android-port-analysis.md).
 
 ## Requirements
@@ -32,12 +33,12 @@ Los repositorios de referencia en `../upstream` no participan en este build.
 
 ```powershell
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n org.tsg.android/.MainActivity
+adb shell am start -n org.tsg.android/.LauncherActivity
 adb logcat -s TSGAndroid VALIDATION AndroidRuntime
 adb shell run-as org.tsg.android cat files/game.log
 ```
 
-Resultado esperado: pantalla azul landscape. HOME pausa y libera Vulkan;
+El launcher ofrece selección de carpeta y la prueba azul de Vulkan. HOME pausa y libera Vulkan;
 volver a la app recrea instancia, dispositivo, surface y swapchain. Objetivo
 30 FPS, sin busy loop. `game.log` vive en almacenamiento privado.
 APK Debug firmado automáticamente para pruebas; Release produce
@@ -53,8 +54,11 @@ NFSMW se evaluará posteriormente como opción Adreno, nunca requisito para Mali
 
 ## Provide game files
 
-No es necesario para M1. Selección SAF, validación SHA, runtime y arranque EA/menu
-están pendientes. No copiar la carpeta del juego al APK ni a `app/src/main/assets`.
+Guardar los datos propios en `TSG` dentro de la memoria interna compartida.
+Seleccionar esa carpeta con SAF y pulsar importación: el runtime usa una copia
+privada y verifica SHA-256 del ejecutable. El acceso directo SAF del runtime
+está pendiente. Ver [integración experimental](docs/experimental-runtime.md).
+No copiar la carpeta del juego al APK ni a `app/src/main/assets`.
 
 ## Estado y evidencia
 

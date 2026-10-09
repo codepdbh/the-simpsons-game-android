@@ -1,0 +1,89 @@
+diff --git a/sdk/include/rex/platform/fpscr.h b/sdk/include/rex/platform/fpscr.h
+index c2c4fd4..ae8dcff 100644
+--- a/sdk/include/rex/platform/fpscr.h
++++ b/sdk/include/rex/platform/fpscr.h
+@@ -75,7 +75,7 @@ struct FPSCRPlatform {
+     return csr;
+   }
+ 
+-  static inline void setcsr(u32 csr) noexcept { __asm__ __volatile__("msr fpcr, %0" : : "r"(csr)); }
++  static inline void setcsr(u32 csr) noexcept { __asm__ __volatile__("msr fpcr, %0" : : "r"(static_cast<u64>(csr))); }
+ 
+   static inline void InitHostExceptions(u32& csr) noexcept {
+     csr &= ~ExceptionMask;  // Clear enable bits to disable exceptions
+diff --git a/sdk/include/rex/ppc/func.h b/sdk/include/rex/ppc/func.h
+index 0f3d05e..5c9baaa 100644
+--- a/sdk/include/rex/ppc/func.h
++++ b/sdk/include/rex/ppc/func.h
+@@ -44,6 +44,7 @@ PPCFunc* ResolveIndirectFunction(uint32_t guest_address);
+ // by writing extern "C" itself or by using REX_EXTERN.
+ #define REX_FUNC(x) void x([[maybe_unused]] PPCContext& __restrict ctx, uint8_t* base)
+ #define REX_EXTERN(x) extern "C" REX_FUNC(x)
++#define REX_WEAK_FUNC(x) __attribute__((weak, noinline)) REX_FUNC(x)
+ 
+ //=============================================================================
+ // Function Mapping
+diff --git a/sdk/src/ui/vulkan/vulkan_device.cpp b/sdk/src/ui/vulkan/vulkan_device.cpp
+index 0fc9d7a..460bd7d 100644
+--- a/sdk/src/ui/vulkan/vulkan_device.cpp
++++ b/sdk/src/ui/vulkan/vulkan_device.cpp
+@@ -77,6 +77,10 @@ std::unique_ptr<VulkanDevice> VulkanDevice::CreateIfSupported(
+   ifn.vkGetPhysicalDeviceProperties(physical_device, &properties);
+ 
+   const uint32_t unclamped_api_version = properties.apiVersion;
++#if REX_PLATFORM_ANDROID
++  if (properties.apiVersion < VK_API_VERSION_1_1) return nullptr;
++  properties.apiVersion = VK_API_VERSION_1_1;
++#endif
+   if (vulkan_instance->api_version() < VK_MAKE_API_VERSION(0, 1, 1, 0)) {
+     // From the VkApplicationInfo specification:
+     //
+diff --git a/sdk/src/ui/vulkan/vulkan_instance.cpp b/sdk/src/ui/vulkan/vulkan_instance.cpp
+index 26d93ba..5b4d548 100644
+--- a/sdk/src/ui/vulkan/vulkan_instance.cpp
++++ b/sdk/src/ui/vulkan/vulkan_instance.cpp
+@@ -158,6 +158,14 @@ std::unique_ptr<VulkanInstance> VulkanInstance::Create(const bool with_surface,
+   if (ifn.vkEnumerateInstanceVersion) {
+     ifn.vkEnumerateInstanceVersion(&vulkan_instance->api_version_);
+   }
++#if REX_PLATFORM_ANDROID
++  if (vulkan_instance->api_version_ < VK_API_VERSION_1_1) {
++    REXLOG_ERROR("Vulkan 1.1 or newer is required.");
++    return nullptr;
++  }
++  // Baseline path: do not accidentally negotiate newer core feature structs.
++  vulkan_instance->api_version_ = VK_API_VERSION_1_1;
++#endif
+ 
+   // Enable extensions and layers.
+ 
+@@ -390,6 +398,9 @@ std::unique_ptr<VulkanInstance> VulkanInstance::Create(const bool with_surface,
+   application_info.apiVersion = vulkan_instance->api_version_ >= VK_MAKE_API_VERSION(0, 1, 1, 0)
+                                     ? VulkanDevice::kHighestUsedApiMinorVersion
+                                     : VK_MAKE_API_VERSION(0, 1, 0, 0);
++#if REX_PLATFORM_ANDROID
++  application_info.apiVersion = VK_API_VERSION_1_1;
++#endif
+ 
+   VkInstanceCreateInfo instance_create_info;
+   instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+diff --git a/sdk/src/ui/windowed_app_context_sdl.cpp b/sdk/src/ui/windowed_app_context_sdl.cpp
+index f9f7328..50c3750 100644
+--- a/sdk/src/ui/windowed_app_context_sdl.cpp
++++ b/sdk/src/ui/windowed_app_context_sdl.cpp
+@@ -199,6 +199,15 @@ void SDLWindowedAppContext::ProcessEvent(SDL_Event& event) {
+ 
+ bool SDLCALL SDLWindowedAppContext::WatchEvent(void* userdata, SDL_Event* event) {
+   auto* context = static_cast<SDLWindowedAppContext*>(userdata);
++#if REX_PLATFORM_ANDROID
++  // SDL lifecycle events are dispatched synchronously to watchers, not queued.
++  if (event->type == SDL_EVENT_WILL_ENTER_BACKGROUND ||
++      event->type == SDL_EVENT_DID_ENTER_BACKGROUND ||
++      event->type == SDL_EVENT_WILL_ENTER_FOREGROUND ||
++      event->type == SDL_EVENT_DID_ENTER_FOREGROUND) {
++    context->ProcessEvent(*event);
++  }
++#endif
+   if (event->type == SDL_EVENT_QUIT && SDL_IsMainThread() && context->IsInUIThread()) {
+     // Cocoa stops making Metal drawables available as part of its termination
+     // request. Handle the request synchronously while SDL is queueing it,

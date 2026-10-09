@@ -2,8 +2,10 @@
     <uses-feature android:name="android.hardware.vulkan.level" android:required="false" android:version="0" />
     <uses-feature android:name="android.hardware.vulkan.version" android:required="false" android:version="0x00401000" />
     <application android:label="The Simpsons Game Android" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:allowBackup="false" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
-        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|navigation|density" >
+        <activity android:name=".LauncherActivity" android:exported="true" android:screenOrientation="landscape">
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity>
+        <activity android:name=".MainActivity" android:exported="false" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|navigation|density" />
+        <activity android:name=".GameActivity" android:exported="false" android:process=":game" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|navigation|density" />
     </application>
 </manifest>
