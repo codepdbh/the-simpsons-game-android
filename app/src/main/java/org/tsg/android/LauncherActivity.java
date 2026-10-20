@@ -87,10 +87,13 @@ public class LauncherActivity extends Activity {
     private void refreshOptions() {
         options.removeAllViews();
         choice("profile","Perfil gráfico",new String[]{"balanced","compatibility"},new String[]{"Equilibrado","Compatibilidad · Mali / Xclipse / otros"},"balanced");
-        choice("fps","Límite de FPS del juego",new String[]{"30","60"},new String[]{"30 FPS · estabilidad","60 FPS · experimental"},"60");
+        choice("fps","Límite de FPS del juego",new String[]{"30","60"},new String[]{"30 FPS · estabilidad","60 FPS · experimental"},"30");
         choice("workers","Compilación de shaders",new String[]{"1","2","4"},new String[]{"1 hilo · menor carga CPU","2 hilos · equilibrado","4 hilos · carga más rápida"},"2");
         choice("async","Shaders en segundo plano",new String[]{"true","false"},new String[]{"Activado · experimental","Desactivado · imagen completa, pausas al compilar"},"false");
         choice("letterbox","Formato de imagen",new String[]{"true","false"},new String[]{"16:9 original","Ocupar toda la pantalla"},"true");
+        choice("eyes","Sombreado de ojos",new String[]{"clean","original"},new String[]{"Ojos limpios · experimental","Shader original"},"clean");
+        choice("outlines","Contornos de personajes",new String[]{"original","soft","off"},new String[]{"Originales","Suaves","Desactivados"},"original");
+        choice("direct_resolve","Compatibilidad de texturas",new String[]{"true","false"},new String[]{"Normal","Conservadora · puede reducir FPS"},"true");
         String[] names={"Español","Italiano","English","Français","Deutsch"};int[] ids={5,6,1,4,3};
         int language=GameOptions.prefs(this).getInt("language",5),selected=0;for(int i=0;i<ids.length;i++) if(ids[i]==language) selected=i;
         final int checked=selected;button(options,"Idioma del juego\n"+names[selected],()->new android.app.AlertDialog.Builder(this).setTitle("Idioma · requiere los datos correspondientes")

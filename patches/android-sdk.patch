@@ -147,10 +147,41 @@ index e472251..690bfbf 100644
      vertex_binding.attributes.push_back({});
      vertex_bindings_.emplace_back(std::move(vertex_binding));
 diff --git a/sdk/src/graphics/vulkan/command_processor.cpp b/sdk/src/graphics/vulkan/command_processor.cpp
-index 09851bb..d82fa13 100644
+index 09851bb..50dda4a 100644
 --- a/sdk/src/graphics/vulkan/command_processor.cpp
 +++ b/sdk/src/graphics/vulkan/command_processor.cpp
-@@ -4037,6 +4037,27 @@ bool VulkanCommandProcessor::IssueDraw(xenos::PrimitiveType prim_type, uint32_t
+@@ -613,6 +613,7 @@ void VulkanCommandProcessor::ClearCaches() {
+ }
+ 
+ void VulkanCommandProcessor::InvalidateGpuMemory() {
++  InvalidateAllVertexBufferResidency();
+   if (shared_memory_) {
+     shared_memory_->InvalidateAllPages();
+   }
+@@ -632,6 +633,9 @@ void VulkanCommandProcessor::InvalidateVertexBufferResidency(uint32_t vfetch_ind
+     return;
+   }
+   vertex_buffers_in_sync_[vfetch_index >> 6] &= ~(uint64_t(1) << (vfetch_index & 63));
++  // A reused address does not imply that guest CPU data is unchanged.
++  vertex_buffer_states_[vfetch_index].address = UINT32_MAX;
++  vertex_buffer_states_[vfetch_index].size = UINT32_MAX;
+ }
+ 
+ void VulkanCommandProcessor::InvalidateVertexBufferResidencyRange(uint32_t first_vfetch,
+@@ -2294,8 +2298,10 @@ void VulkanCommandProcessor::IssueSwap(uint32_t frontbuffer_ptr, uint32_t frontb
+   RexSwitchPerfCount(0);
+   const bool tiene_video_nativo = RexNativeVideoBeginSwap && RexNativeVideoBeginSwap();
+ #endif
+-  vertex_buffers_in_sync_[0] = 0;
+-  vertex_buffers_in_sync_[1] = 0;
++  // EndSubmission invalidates CPU-uploaded shared-memory pages every frame.
++  // Invalidate the address/size shortcut too, otherwise reused dynamic buffers
++  // bypass RequestRange and keep stale vertices from an earlier frame.
++  InvalidateAllVertexBufferResidency();
+ 
+   if (!graphics_system_)
+     return;
+@@ -4037,6 +4043,27 @@ bool VulkanCommandProcessor::IssueDraw(xenos::PrimitiveType prim_type, uint32_t
          case xenos::FetchConstantType::kVertex:
            break;
          case xenos::FetchConstantType::kInvalidVertex:

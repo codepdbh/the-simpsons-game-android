@@ -17,8 +17,10 @@ final class IssueReport {
         return "App: "+BuildConfig.VERSION_NAME+" ("+BuildConfig.VERSION_CODE+")\n"+
             "Device: "+Build.MANUFACTURER+" "+Build.MODEL+"\nAndroid: "+Build.VERSION.RELEASE+" (API "+Build.VERSION.SDK_INT+")\n"+
             "Hardware: "+Build.HARDWARE+"\nABI: "+String.join(", ",Build.SUPPORTED_ABIS)+"\n"+
-            "Profile: "+GameOptions.get(c,"profile","balanced")+"\nFPS target: "+GameOptions.get(c,"fps","60")+
+            "Profile: "+GameOptions.get(c,"profile","balanced")+"\nFPS target: "+GameOptions.get(c,"fps","30")+
             "\nShader workers: "+GameOptions.get(c,"workers","2")+"\nAsync shaders: "+GameOptions.get(c,"async","false")+
+            "\nEyes: "+GameOptions.get(c,"eyes","clean")+"\nOutlines: "+GameOptions.get(c,"outlines","original")+
+            "\nDirect resolve: "+GameOptions.get(c,"direct_resolve","true")+
             "\nLanguage ID: "+GameOptions.prefs(c).getInt("language",5)+"\nDriver: "+(driver==null?"system":driver.name)+"\n";
     }
     static File create(Context c,String description) throws Exception {

@@ -1,4 +1,4 @@
-# Estado — 2026-10-09
+# Estado — 2026-10-20
 
 | Milestone | Estado | Evidencia / alcance |
 |---|---|---|
@@ -8,12 +8,12 @@
 | 3 Código recompilado | WORKING | Funciones ARM64 compiladas, enlazadas y ejecutadas hasta título e introducción. |
 | 4 Boot | WORKING | Arranque hasta título comprobado; versión local del XEX. |
 | 5 Primer frame del juego | WORKING | Captura real de pantalla de título y vídeo introductorio inspeccionadas. |
-| 6 EA logo | NOT STARTED | Sin juego. |
+| 6 EA logo | NOT VERIFIED | No se registró una comprobación independiente de esta pantalla. |
 | 7 Menú | PARTIAL | Pantalla de título y transición a introducción observadas; falta probar todas las opciones del menú. |
-| 8 Gameplay | NOT STARTED | Sin juego. |
-| 9 Rendimiento juego 30 FPS | NOT STARTED | M1 usa target 30 FPS; no benchmark gameplay. |
+| 8 Gameplay | PARTIAL | El usuario reportó personajes invisibles. Logs de 0.3.1 muestran rechazo de streams opcionales vacíos; 0.3.2 corrige el caso, con prueba visual pendiente. |
+| 9 Rendimiento juego 30 FPS | PARTIAL | Cadencia del scheduler de menús medida cerca de 30 Hz en S25; sin benchmark de gameplay. |
 
-## Verificación
+## Verificación M1 — 2026-10-09
 
 - Debug y Release: Gradle BUILD SUCCESSFUL, NDK 28.2.13676358, ARM64.
 - Debug instalado por `adb install -r`, activity iniciada, GPU Adreno 830 API 1.3.284.
@@ -28,7 +28,17 @@
 
 Evidencias locales (ignoradas por git): `artifacts/milestone1-screen.png`,
 `artifacts/milestone1-logcat.txt`, `build-debug.log`, `build-release.log`.
-No se han modificado los proyectos PC/Switch/NFSMW ni los archivos del juego.
+Las adaptaciones de los submódulos se registran en `patches/`; los datos originales
+del juego y el proyecto NFSMW de referencia del usuario se conservan.
+
+## Preparación del Redmi — 2026-10-20
+
+- APK 0.3.2 instalado y launcher inspeccionado; Adreno 610 / Vulkan 1.1.
+- Perfil Compatibilidad, 30 FPS, un hilo de shaders, compilación asíncrona apagada.
+- Regresión sintética ARM64 de stride cero y mini-fetches: PASS.
+- Reporte de GitHub: ZIP guardado en Descargas e inspeccionado; navegador abierto
+  con el formulario preparado. No se publicó un issue de prueba.
+- Prueba visual de personajes/parpadeos pendiente; ver [correcciones](rendering-fixes.md).
 
 ## Límites pendientes
 

@@ -7,3 +7,4 @@ artifacts/
 app/src/debug/jniLibs/
 build-*.log
 copy-tsg.log
+__pycache__/

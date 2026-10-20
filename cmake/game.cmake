@@ -2,7 +2,25 @@
 # initially supplied by the already-tested NFSMW ReXGlue fork, not its game hooks.
 set(TSG_GAME_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/extern/TheSimpsonsGameRecomp/simpsons")
 include("${TSG_GAME_ROOT}/generated/default/sources.cmake")
-add_library(tsg_recompiled OBJECT ${GENERATED_SOURCES})
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(TSG_ORDERED_DIR "${CMAKE_CURRENT_BINARY_DIR}/tsg-arm64-ordered")
+execute_process(COMMAND "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/prepare-arm64-ordering.py"
+    "${TSG_GAME_ROOT}/generated/default" "${TSG_ORDERED_DIR}"
+    COMMAND_ERROR_IS_FATAL ANY)
+include("${TSG_ORDERED_DIR}/sources.cmake")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    ${GENERATED_SOURCES} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/prepare-arm64-ordering.py")
+set(TSG_ANDROID_SOURCES)
+foreach(source IN LISTS GENERATED_SOURCES)
+    get_filename_component(source_name "${source}" NAME)
+    if(source_name IN_LIST TSG_ORDERED_SOURCE_NAMES)
+        list(APPEND TSG_ANDROID_SOURCES "${TSG_ORDERED_DIR}/${source_name}")
+    else()
+        list(APPEND TSG_ANDROID_SOURCES "${source}")
+    endif()
+endforeach()
+add_library(tsg_recompiled OBJECT ${TSG_ANDROID_SOURCES})
 target_compile_features(tsg_recompiled PRIVATE cxx_std_23)
 target_include_directories(tsg_recompiled PRIVATE "${TSG_GAME_ROOT}/generated/default" "${TSG_GAME_ROOT}" compat)
 target_link_libraries(tsg_recompiled PRIVATE rex::runtime)
