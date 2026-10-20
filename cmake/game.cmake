@@ -27,3 +27,13 @@ target_link_options(tsg_gpu_probe PRIVATE "-Wl,-z,max-page-size=16384")
 foreach(runtime_target rexcore rexui rexruntime rexgpu-xenos)
     target_compile_options(${runtime_target} PRIVATE -O2 -g1)
 endforeach()
+
+# Explicit developer target, excluded from APK builds.
+add_executable(tsg_shader_metadata_test EXCLUDE_FROM_ALL tools/tests/shader_metadata_test.cpp)
+target_sources(tsg_shader_metadata_test PRIVATE
+    extern/android-reference/sdk/src/graphics/pipeline/shader/shader.cpp
+    extern/android-reference/sdk/src/graphics/pipeline/shader/translator.cpp
+    extern/android-reference/sdk/src/graphics/pipeline/shader/translator_disasm.cpp
+    extern/android-reference/sdk/src/graphics/format/ucode.cpp)
+target_compile_features(tsg_shader_metadata_test PRIVATE cxx_std_23)
+target_link_libraries(tsg_shader_metadata_test PRIVATE rex::runtime)

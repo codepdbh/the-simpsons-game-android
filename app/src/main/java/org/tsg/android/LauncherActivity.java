@@ -26,6 +26,9 @@ public class LauncherActivity extends Activity {
     private volatile boolean busy;
     private LinearLayout options;
     private static final int DRIVER_ZIP=11, GPU_PROBE=12;
+    private static final int SAVE_REPORT=13;
+    private File pendingReport;
+    private String reportDescription="";
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -42,6 +45,7 @@ public class LauncherActivity extends Activity {
         LinearLayout files=card();left.addView(files);files.addView(label("ARCHIVOS DEL JUEGO · TSG",12,0xffffd83d));
         status=label("",13,0xffdedfe4);files.addView(status);
         start=button(left,"JUGAR",this::startGame);start.setBackground(tint(0xffffd83d));start.setTextColor(0xff17191c);
+        button(left,"Reportar problema en GitHub",this::reportIssue);
         select = button(left, "Elegir carpeta TSG", () -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
@@ -58,6 +62,11 @@ public class LauncherActivity extends Activity {
         setContentView(columns);
         String saved = getPreferences(MODE_PRIVATE).getString("tree", null);
         if (saved != null) tree = Uri.parse(saved);
+        if(state!=null) {
+            String name=state.getString("reportName");
+            if(name!=null&&name.matches("TSG-report-[0-9-]+\\.zip")) pendingReport=new File(new File(getCacheDir(),"reports"),name);
+            reportDescription=state.getString("reportDescription","");
+        }
         refresh();
     }
     private Button button(LinearLayout layout, String text, Runnable action) {
@@ -80,7 +89,7 @@ public class LauncherActivity extends Activity {
         choice("profile","Perfil gráfico",new String[]{"balanced","compatibility"},new String[]{"Equilibrado","Compatibilidad · Mali / Xclipse / otros"},"balanced");
         choice("fps","Límite de FPS del juego",new String[]{"30","60"},new String[]{"30 FPS · estabilidad","60 FPS · experimental"},"60");
         choice("workers","Compilación de shaders",new String[]{"1","2","4"},new String[]{"1 hilo · menor carga CPU","2 hilos · equilibrado","4 hilos · carga más rápida"},"2");
-        choice("async","Shaders en segundo plano",new String[]{"true","false"},new String[]{"Activado · puede omitir frames nuevos","Desactivado · puede pausar al compilar"},"true");
+        choice("async","Shaders en segundo plano",new String[]{"true","false"},new String[]{"Activado · experimental","Desactivado · imagen completa, pausas al compilar"},"false");
         choice("letterbox","Formato de imagen",new String[]{"true","false"},new String[]{"16:9 original","Ocupar toda la pantalla"},"true");
         String[] names={"Español","Italiano","English","Français","Deutsch"};int[] ids={5,6,1,4,3};
         int language=GameOptions.prefs(this).getInt("language",5),selected=0;for(int i=0;i<ids.length;i++) if(ids[i]==language) selected=i;
@@ -112,8 +121,34 @@ public class LauncherActivity extends Activity {
         refreshOptions();
     }
     @Override protected void onResume() { super.onResume(); setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); if (status != null && !busy) refresh(); }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        if(pendingReport!=null) state.putString("reportName",pendingReport.getName());
+        state.putString("reportDescription",reportDescription);
+    }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request,result,data);
+        if(request==SAVE_REPORT) {
+            if(result!=RESULT_OK||data==null||data.getData()==null) return;
+            File report=pendingReport;String description=reportDescription;
+            if(report==null||!report.isFile()) {status.setText("Genera un informe nuevo.");return;}
+            Uri destination=data.getData();busy=true;refresh();status.setText("Guardando informe…");
+            worker.execute(()-> {
+                try(InputStream input=new FileInputStream(report);OutputStream output=getContentResolver().openOutputStream(destination,"w")) {
+                    if(output==null) throw new IOException("No se pudo guardar el ZIP");
+                    byte[] buffer=new byte[65536];int n;while((n=input.read(buffer))!=-1) output.write(buffer,0,n);
+                } catch(Exception error) {showError(error);return;}
+                runOnUiThread(()-> {
+                    busy=false;refresh();
+                    String preview=description.codePointCount(0,description.length())>500
+                        ?description.substring(0,description.offsetByCodePoints(0,500))+"\n(Descripción completa en el ZIP.)":description;
+                    String body="### Problem / Problema\n"+preview+"\n\n### Device / Dispositivo\n```text\n"+IssueReport.summary(this)+"```\n\n### Logs\nAttach / Adjunta **"+report.getName()+"** (ZIP guardado).\n";
+                    Uri issue=Uri.parse(IssueReport.ISSUES).buildUpon().appendQueryParameter("title","[Android] "+android.os.Build.MODEL+" — reporte").appendQueryParameter("body",body).build();
+                    try {startActivity(new Intent(Intent.ACTION_VIEW,issue));}
+                    catch(android.content.ActivityNotFoundException error) {status.setText("ZIP guardado. Abre "+IssueReport.ISSUES+" y adjúntalo.");}
+                });
+            });return;
+        }
         if(request==GPU_PROBE) {
             String report=result==RESULT_OK&&data!=null?data.getStringExtra("gpu_report"):"La prueba fue interrumpida";
             try {
@@ -137,6 +172,28 @@ public class LauncherActivity extends Activity {
                 getPreferences(MODE_PRIVATE).edit().putString("tree",tree.toString()).apply(); refresh();
             } catch (SecurityException e) { status.setText("Folder permission failed: " + e.getMessage()); }
         }
+    }
+    private void reportIssue() {
+        if(busy) return;
+        EditText description=new EditText(this);description.setHint("Qué ocurre y cómo reproducirlo");description.setMaxLines(5);
+        description.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(2000)});
+        new android.app.AlertDialog.Builder(this).setTitle("Reportar en GitHub").setView(description)
+            .setMessage("Se guardará un ZIP con los últimos logs y datos del dispositivo. Después se abrirá GitHub: revisa el issue, adjunta el ZIP y publícalo.")
+            .setPositiveButton("Preparar reporte",(dialog,which)-> {
+                reportDescription=description.getText().toString();String text=reportDescription;
+                busy=true;refresh();status.setText("Preparando logs…");
+                worker.execute(()-> {
+                    try {
+                        File report=IssueReport.create(this,text);
+                        runOnUiThread(()-> {
+                            pendingReport=report;busy=false;refresh();
+                            Intent save=new Intent(Intent.ACTION_CREATE_DOCUMENT);save.setType("application/zip");save.addCategory(Intent.CATEGORY_OPENABLE);save.putExtra(Intent.EXTRA_TITLE,report.getName());
+                            try {startActivityForResult(save,SAVE_REPORT);}
+                            catch(android.content.ActivityNotFoundException error) {status.setText("No hay una aplicación para guardar el ZIP.");}
+                        });
+                    } catch(Exception error) {showError(error);}
+                });
+            }).setNegativeButton("Cancelar",null).show();
     }
     private static String hash(File file) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256"); byte[] buffer = new byte[1024*1024];

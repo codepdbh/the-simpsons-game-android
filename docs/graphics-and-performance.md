@@ -12,8 +12,10 @@ resolución ni shaders específicos de NFSMW: no pertenecen al renderer de Simps
   fillModeNonSolid; mantienen las funciones realmente obligatorias del SDK.
 - **Shaders:** dos hilos por defecto en lugar de la selección automática de hasta
   tres cuartos de los núcleos. Esto reduce competencia con los hilos del juego.
-  Compilación asíncrona y almacenamiento de shaders activados. Al aparecer un
-  pipeline nuevo pueden omitirse frames; desactivar la opción puede causar pausas.
+  Almacenamiento de shaders activado. Desde 0.3.2 la compilación asíncrona está
+  desactivada por defecto para evitar ejecutar pases incompletos mientras faltan
+  pipelines. Esto puede causar pausas al compilar. El modo asíncrono queda como
+  opción experimental; se conserva la preferencia si el usuario ya la eligió.
 - **CPU:** SDK nativo compilado con `-O2` también en el APK experimental Debug.
   Menús a 30 FPS para conservar la cadencia original de su lógica.
 
