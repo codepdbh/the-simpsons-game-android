@@ -1,0 +1,26 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "The Simpsons Game",
+  "system": "Xbox 360",
+  "type": "recomp",
+  "project": "The Simpsons Game Android Evolved",
+  "status": "released",
+  "targets": [
+    "Android"
+  ],
+  "approach": "Static PowerPC recompilation with ReXGlue, SDL3 and Vulkan.",
+  "maintainers": [
+    {
+      "name": "codepdbh",
+      "link": "https://github.com/codepdbh"
+    }
+  ],
+  "notes": "Experimental public Android ARM64 build reaches the title screen and animated introduction on Galaxy S25 Ultra. Includes touch layout editing and physical-controller support. Full gameplay, audio quality and broader GPU support remain unverified.",
+  "toolchain": "Rexglue",
+  "links": [
+    {
+      "label": "Upstream project",
+      "url": "https://github.com/rexglue/rexglue-sdk"
+    }
+  ]
+}
